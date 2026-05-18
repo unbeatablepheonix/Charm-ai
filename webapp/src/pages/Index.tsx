@@ -14,27 +14,52 @@ import type { CoachMode, CoachTone } from "@/lib/coach-types";
 
 const Index = () => {
   const [mode, setMode] = useState<CoachMode>("opener");
-  const [context, setContext] = useState<string>("");
+  const [context, setContext] = useState<string>(() => localStorage.getItem("charm-context") ?? "");
   const [tone, setTone] = useState<CoachTone | undefined>(undefined);
-  const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
+  const [imageUrls, setImageUrls] = useState<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem("charm-imageUrls") ?? "[]");
+    } catch {
+      return [];
+    }
+  });
 
   const coach = useCoach();
   const currentMode = getMode(mode);
 
+  const handleContextChange = (val: string) => {
+    setContext(val);
+    localStorage.setItem("charm-context", val);
+  };
+
+  const handleAddImage = (url: string) => {
+    const next = [...imageUrls, url];
+    setImageUrls(next);
+    localStorage.setItem("charm-imageUrls", JSON.stringify(next));
+  };
+
+  const handleRemoveImage = (url: string) => {
+    const next = imageUrls.filter((u) => u !== url);
+    setImageUrls(next);
+    localStorage.setItem("charm-imageUrls", JSON.stringify(next));
+  };
+
   const handleSubmit = () => {
     if (!context.trim() || coach.isPending) return;
-    coach.mutate({ mode, context: context.trim(), tone, imageUrl });
+    coach.mutate({ mode, context: context.trim(), tone, imageUrls: imageUrls.length > 0 ? imageUrls : undefined });
   };
 
   const handleReset = () => {
     coach.reset();
     setContext("");
-    setImageUrl(undefined);
+    setImageUrls([]);
+    localStorage.removeItem("charm-context");
+    localStorage.removeItem("charm-imageUrls");
   };
 
   const handleRegenerate = () => {
     if (!context.trim()) return;
-    coach.mutate({ mode, context: context.trim(), tone, imageUrl });
+    coach.mutate({ mode, context: context.trim(), tone, imageUrls: imageUrls.length > 0 ? imageUrls : undefined });
   };
 
   const handleModeChange = (m: CoachMode) => {
@@ -43,7 +68,7 @@ const Index = () => {
   };
 
   const useExample = () => {
-    setContext(currentMode.example);
+    handleContextChange(currentMode.example);
   };
 
   return (
@@ -114,7 +139,7 @@ const Index = () => {
               </div>
               <ContextField
                 value={context}
-                onChange={setContext}
+                onChange={handleContextChange}
                 placeholder={currentMode.placeholder}
               />
             </div>
@@ -124,9 +149,9 @@ const Index = () => {
                 Step 3 · Add a photo (optional)
               </p>
               <PhotoUpload
-                imageUrl={imageUrl}
-                onUpload={setImageUrl}
-                onRemove={() => setImageUrl(undefined)}
+                imageUrls={imageUrls}
+                onAdd={handleAddImage}
+                onRemove={handleRemoveImage}
               />
             </div>
 

@@ -1,42 +1,41 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { ImagePlus, X, Loader2 } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
 import { uploadFile } from "@/lib/upload";
 import { cn } from "@/lib/utils";
 
 interface PhotoUploadProps {
-  imageUrl: string | undefined;
-  onUpload: (url: string) => void;
-  onRemove: () => void;
+  imageUrls: string[];
+  onAdd: (url: string) => void;
+  onRemove: (url: string) => void;
 }
 
-export function PhotoUpload({ imageUrl, onUpload, onRemove }: PhotoUploadProps) {
+export function PhotoUpload({ imageUrls, onAdd, onRemove }: PhotoUploadProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const upload = useMutation({
-    mutationFn: uploadFile,
-    onSuccess: (result) => {
-      onUpload(result.url);
-    },
-  });
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    upload.mutate(file);
-    // Reset input so the same file can be re-selected after removal
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
     e.target.value = "";
+    if (files.length === 0) return;
+
+    setUploading(true);
+    setError(null);
+    try {
+      for (const file of files) {
+        const result = await uploadFile(file);
+        onAdd(result.url);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed — try again.");
+    } finally {
+      setUploading(false);
+    }
   };
 
-  const handleZoneClick = () => {
-    if (imageUrl || upload.isPending) return;
+  const handleAddClick = () => {
+    if (uploading) return;
     inputRef.current?.click();
-  };
-
-  const handleRemove = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onRemove();
-    upload.reset();
   };
 
   return (
@@ -45,66 +44,57 @@ export function PhotoUpload({ imageUrl, onUpload, onRemove }: PhotoUploadProps) 
         ref={inputRef}
         type="file"
         accept="image/*"
+        multiple
         className="hidden"
         onChange={handleFileChange}
       />
 
-      {imageUrl ? (
-        <div className="relative inline-block">
-          <div className="group relative h-20 w-20 overflow-hidden rounded-xl border border-border/60 bg-card/40">
-            <img
-              src={imageUrl}
-              alt="Uploaded photo"
-              className="h-full w-full object-cover"
-            />
-            <div className="absolute inset-0 bg-black/40 opacity-0 transition-opacity group-hover:opacity-100" />
+      <div className="flex flex-wrap gap-2">
+        {imageUrls.map((url) => (
+          <div key={url} className="relative inline-block">
+            <div className="group relative h-20 w-20 overflow-hidden rounded-xl border border-border/60 bg-card/40">
+              <img
+                src={url}
+                alt="Uploaded photo"
+                className="h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/40 opacity-0 transition-opacity group-hover:opacity-100" />
+            </div>
+            <button
+              type="button"
+              onClick={() => onRemove(url)}
+              className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full border border-border/60 bg-card text-muted-foreground shadow-sm transition-colors hover:border-destructive/60 hover:text-destructive"
+              aria-label="Remove photo"
+            >
+              <X className="h-3 w-3" />
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={handleRemove}
-            className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full border border-border/60 bg-card text-muted-foreground shadow-sm transition-colors hover:border-destructive/60 hover:text-destructive"
-            aria-label="Remove photo"
-          >
-            <X className="h-3 w-3" />
-          </button>
-          <p className="mt-1.5 text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60">
-            Photo added
-          </p>
-        </div>
-      ) : (
+        ))}
+
         <button
           type="button"
-          onClick={handleZoneClick}
-          disabled={upload.isPending}
+          onClick={handleAddClick}
+          disabled={uploading}
           className={cn(
-            "flex h-16 w-full items-center justify-center gap-3 rounded-xl border border-dashed border-border/60 bg-card/30 transition-colors",
-            upload.isPending
+            "flex h-20 w-20 flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-border/60 bg-card/30 transition-colors",
+            uploading
               ? "cursor-default opacity-70"
               : "cursor-pointer hover:border-primary/40 hover:bg-card/50"
           )}
         >
-          {upload.isPending ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                Uploading…
-              </span>
-            </>
+          {uploading ? (
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
           ) : (
-            <>
-              <ImagePlus className="h-4 w-4 text-muted-foreground/70" strokeWidth={1.5} />
-              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70">
-                Add a photo (optional)
-              </span>
-            </>
+            <ImagePlus className="h-4 w-4 text-muted-foreground/70" strokeWidth={1.5} />
           )}
+          <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-muted-foreground/70">
+            {uploading ? "Uploading…" : imageUrls.length === 0 ? "Add photo" : "Add more"}
+          </span>
         </button>
-      )}
+      </div>
 
-      {upload.isError ? (
-        <p className="mt-1.5 text-[11px] text-destructive-foreground/80">
-          {upload.error instanceof Error ? upload.error.message : "Upload failed — try again."}
-        </p>
+      {error !== null ? (
+        <p className="mt-1.5 text-[11px] text-destructive-foreground/80">{error}</p>
       ) : null}
     </div>
   );

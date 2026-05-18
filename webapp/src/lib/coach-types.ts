@@ -18,5 +18,5 @@ export interface CoachRequest {
   mode: CoachMode;
   context: string;
   tone?: CoachTone;
-  imageUrl?: string;
+  imageUrls?: string[];
 }
