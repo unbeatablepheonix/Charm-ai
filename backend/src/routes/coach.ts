@@ -22,7 +22,7 @@ const MODE_BRIEF: Record<CoachMode, { headline: string; instructions: string }> 
   },
 };
 
-function buildSystemPrompt(mode: CoachMode, tone?: string) {
+function buildSystemPrompt(mode: CoachMode, tone?: string, hasImage?: boolean) {
   const brief = MODE_BRIEF[mode];
   return `You are Charm — a warm, sharp conversation coach helping someone connect with a woman they're interested in. Your voice is grounded and human, not bro-y, not corporate, not therapy-speak. You write like a perceptive friend who's good with people.
 
@@ -36,6 +36,7 @@ Your principles, always:
 Mode: ${brief.headline}
 ${brief.instructions}
 ${tone ? `Lean toward a ${tone} tone where it fits.` : ""}
+${hasImage ? `The user has shared a photo. Look at it carefully — notice details about her appearance, style, setting, and vibe. Use what you observe to make your suggestions more specific and personalized.` : ""}
 
 Return ONLY valid JSON matching this exact shape (no markdown, no prose around it):
 {
@@ -59,14 +60,28 @@ coachRouter.post("/", async (c) => {
       400
     );
   }
-  const { mode, context, tone } = parseResult.data;
+  const { mode, context, tone, imageUrl } = parseResult.data;
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
     return c.json({ error: { message: "OPENAI_API_KEY is not configured", code: "missing_key" } }, 500);
   }
 
-  const systemPrompt = buildSystemPrompt(mode, tone);
+  const systemPrompt = buildSystemPrompt(mode, tone, !!imageUrl);
+
+  type UserContent =
+    | string
+    | Array<
+        | { type: "input_image"; image_url: string }
+        | { type: "input_text"; text: string }
+      >;
+
+  const userContent: UserContent = imageUrl
+    ? [
+        { type: "input_image", image_url: imageUrl },
+        { type: "input_text", text: context },
+      ]
+    : context;
 
   const openaiResponse = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
@@ -78,7 +93,7 @@ coachRouter.post("/", async (c) => {
       model: "gpt-5.2",
       input: [
         { role: "system", content: systemPrompt },
-        { role: "user", content: context },
+        { role: "user", content: userContent },
       ],
       text: { format: { type: "json_object" } },
     }),

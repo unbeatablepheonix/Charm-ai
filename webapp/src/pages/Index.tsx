@@ -5,6 +5,7 @@ import { Wordmark } from "@/components/charm/Wordmark";
 import { ModeTabs } from "@/components/charm/ModeTabs";
 import { ToneSelect } from "@/components/charm/ToneSelect";
 import { ContextField } from "@/components/charm/ContextField";
+import { PhotoUpload } from "@/components/charm/PhotoUpload";
 import { ResultPanel } from "@/components/charm/ResultPanel";
 import { LoadingShimmer } from "@/components/charm/LoadingShimmer";
 import { useCoach } from "@/hooks/use-coach";
@@ -15,23 +16,25 @@ const Index = () => {
   const [mode, setMode] = useState<CoachMode>("opener");
   const [context, setContext] = useState<string>("");
   const [tone, setTone] = useState<CoachTone | undefined>(undefined);
+  const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
 
   const coach = useCoach();
   const currentMode = getMode(mode);
 
   const handleSubmit = () => {
     if (!context.trim() || coach.isPending) return;
-    coach.mutate({ mode, context: context.trim(), tone });
+    coach.mutate({ mode, context: context.trim(), tone, imageUrl });
   };
 
   const handleReset = () => {
     coach.reset();
     setContext("");
+    setImageUrl(undefined);
   };
 
   const handleRegenerate = () => {
     if (!context.trim()) return;
-    coach.mutate({ mode, context: context.trim(), tone });
+    coach.mutate({ mode, context: context.trim(), tone, imageUrl });
   };
 
   const handleModeChange = (m: CoachMode) => {
@@ -116,8 +119,24 @@ const Index = () => {
               />
             </div>
 
+            <div>
+              <p className="mb-2.5 font-mono text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
+                Step 3 · Add a photo (optional)
+              </p>
+              <PhotoUpload
+                imageUrl={imageUrl}
+                onUpload={setImageUrl}
+                onRemove={() => setImageUrl(undefined)}
+              />
+            </div>
+
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <ToneSelect value={tone} onChange={setTone} />
+              <div className="flex flex-col gap-2">
+                <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
+                  Step 4 · Tone (optional)
+                </p>
+                <ToneSelect value={tone} onChange={setTone} />
+              </div>
               <Button
                 onClick={handleSubmit}
                 disabled={!context.trim() || coach.isPending}

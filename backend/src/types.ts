@@ -7,6 +7,7 @@ export const coachRequestSchema = z.object({
   mode: coachModeSchema,
   context: z.string().min(1).max(4000),
   tone: z.enum(["playful", "sincere", "witty", "confident"]).optional(),
+  imageUrl: z.string().url().optional(),
 });
 export type CoachRequest = z.infer<typeof coachRequestSchema>;
 

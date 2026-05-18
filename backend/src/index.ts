@@ -5,6 +5,9 @@ import "./env";
 import { sampleRouter } from "./routes/sample";
 import { coachRouter } from "./routes/coach";
 import { logger } from "hono/logger";
+import { createVibecodeSDK, StorageError } from "@vibecodeapp/backend-sdk";
+
+const vibecode = createVibecodeSDK();
 
 const app = new Hono();
 
@@ -36,6 +39,23 @@ app.get("/health", (c) => c.json({ status: "ok" }));
 // Routes
 app.route("/api/sample", sampleRouter);
 app.route("/api/coach", coachRouter);
+
+app.post("/api/upload", async (c) => {
+  const formData = await c.req.formData();
+  const file = formData.get("file");
+  if (!file || !(file instanceof File)) {
+    return c.json({ error: { message: "No file provided", code: "bad_request" } }, 400);
+  }
+  try {
+    const result = await vibecode.storage.upload(file);
+    return c.json({ data: result });
+  } catch (error) {
+    if (error instanceof StorageError) {
+      return c.json({ error: { message: error.message, code: "storage_error" } }, error.statusCode as 400 | 401 | 403 | 404 | 409 | 429 | 500);
+    }
+    return c.json({ error: { message: "Upload failed", code: "upload_error" } }, 500);
+  }
+});
 
 const port = Number(process.env.PORT) || 3000;
 
