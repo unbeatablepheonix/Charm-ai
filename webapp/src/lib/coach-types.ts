@@ -1,5 +1,5 @@
-export type CoachMode = "opener" | "reply" | "profile" | "advice";
-export type CoachTone = "playful" | "sincere" | "witty" | "confident";
+export type CoachMode = "opener" | "reply" | "story_reply" | "profile" | "advice";
+export type CoachTone = "playful" | "sincere" | "witty" | "confident" | "sweet" | "chill" | "super_swagger_rizz" | "charm";
 
 export interface CoachSuggestion {
   label: string;
@@ -17,6 +17,6 @@ export interface CoachResponse {
 export interface CoachRequest {
   mode: CoachMode;
   context: string;
-  tone?: CoachTone;
+  tone?: CoachTone[];
   imageUrls?: string[];
 }

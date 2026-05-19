@@ -1,12 +1,15 @@
 import { z } from "zod";
 
-export const coachModeSchema = z.enum(["opener", "reply", "profile", "advice"]);
+export const coachModeSchema = z.enum(["opener", "reply", "profile", "advice", "story_reply"]);
 export type CoachMode = z.infer<typeof coachModeSchema>;
+
+export const toneSchema = z.enum(["playful", "sincere", "witty", "confident", "sweet", "chill", "super_swagger_rizz", "charm"]);
+export type Tone = z.infer<typeof toneSchema>;
 
 export const coachRequestSchema = z.object({
   mode: coachModeSchema,
   context: z.string().min(1).max(4000),
-  tone: z.enum(["playful", "sincere", "witty", "confident"]).optional(),
+  tone: z.array(toneSchema).optional(),
   imageUrls: z.array(z.string().url()).optional(),
 });
 export type CoachRequest = z.infer<typeof coachRequestSchema>;

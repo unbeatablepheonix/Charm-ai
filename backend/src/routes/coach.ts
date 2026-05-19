@@ -20,9 +20,13 @@ const MODE_BRIEF: Record<CoachMode, { headline: string; instructions: string }> 
     headline: "Coaching",
     instructions: `The user is asking for advice about talking to women, dating, confidence, conversation, or a specific situation they're in. Give honest, kind, grounded advice — like a thoughtful friend. No manipulation tactics, no scripts, no "alpha" nonsense. Focus on genuine connection, curiosity, and self-respect. If they're spiraling about something, help them zoom out.`,
   },
+  story_reply: {
+    headline: "Story Replies",
+    instructions: `The user wants to reply to a woman's Instagram story. They'll describe the story or paste its content. Write three witty, charming DM replies they could send. Each should feel natural and show personality — not creepy, not try-hard. Vary the vibe: one playful/funny, one genuinely curious or warm, one confident and brief. Keep them short — 1-2 sentences max, written like a real DM.`,
+  },
 };
 
-function buildSystemPrompt(mode: CoachMode, tone?: string, imageCount?: number) {
+function buildSystemPrompt(mode: CoachMode, tone?: string[], imageCount?: number) {
   const brief = MODE_BRIEF[mode];
   const imageNote = imageCount && imageCount > 0
     ? imageCount === 1
@@ -40,7 +44,7 @@ Your principles, always:
 
 Mode: ${brief.headline}
 ${brief.instructions}
-${tone ? `Lean toward a ${tone} tone where it fits.` : ""}
+${tone && tone.length > 0 ? `Lean toward a ${tone.join(", ")} tone where it fits.` : ""}
 ${imageNote}
 
 Return ONLY valid JSON matching this exact shape (no markdown, no prose around it):

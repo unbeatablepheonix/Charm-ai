@@ -1,5 +1,5 @@
 import type { CoachMode } from "./coach-types";
-import { Sparkles, MessageCircle, ScrollText, Compass } from "lucide-react";
+import { Sparkles, MessageCircle, ScrollText, Compass, Camera } from "lucide-react";
 
 export interface ModeConfig {
   id: CoachMode;
@@ -44,6 +44,17 @@ export const COACH_MODES: ModeConfig[] = [
     cta: "Read the profile",
     example:
       "Bio: 'civil engineer by day, terrible cook by night. will out-hike you. ask me about my sourdough graveyard.' Prompts: 'I geek out on... bridges' / 'My simple pleasures: a perfect oat flat white'",
+  },
+  {
+    id: "story_reply",
+    name: "Story Reply",
+    tagline: "React to her Instagram story",
+    icon: Camera,
+    placeholder:
+      "Describe her story or paste what it says. What did she post? A photo at the beach, a meme, a song lyric, a poll?",
+    cta: "Get replies",
+    example:
+      "She posted a story of her at a rooftop bar with the caption 'summer finally 🌅' — she's dressed up, clearly having a good time.",
   },
   {
     id: "advice",

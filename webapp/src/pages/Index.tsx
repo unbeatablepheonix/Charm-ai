@@ -15,7 +15,7 @@ import type { CoachMode, CoachTone } from "@/lib/coach-types";
 const Index = () => {
   const [mode, setMode] = useState<CoachMode>("opener");
   const [context, setContext] = useState<string>(() => localStorage.getItem("charm-context") ?? "");
-  const [tone, setTone] = useState<CoachTone | undefined>(undefined);
+  const [tone, setTone] = useState<CoachTone[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>(() => {
     try {
       return JSON.parse(localStorage.getItem("charm-imageUrls") ?? "[]");
@@ -46,7 +46,7 @@ const Index = () => {
 
   const handleSubmit = () => {
     if (!context.trim() || coach.isPending) return;
-    coach.mutate({ mode, context: context.trim(), tone, imageUrls: imageUrls.length > 0 ? imageUrls : undefined });
+    coach.mutate({ mode, context: context.trim(), tone: tone.length > 0 ? tone : undefined, imageUrls: imageUrls.length > 0 ? imageUrls : undefined });
   };
 
   const handleReset = () => {
@@ -59,7 +59,7 @@ const Index = () => {
 
   const handleRegenerate = () => {
     if (!context.trim()) return;
-    coach.mutate({ mode, context: context.trim(), tone, imageUrls: imageUrls.length > 0 ? imageUrls : undefined });
+    coach.mutate({ mode, context: context.trim(), tone: tone.length > 0 ? tone : undefined, imageUrls: imageUrls.length > 0 ? imageUrls : undefined });
   };
 
   const handleModeChange = (m: CoachMode) => {
@@ -160,7 +160,7 @@ const Index = () => {
                 <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
                   Step 4 · Tone (optional)
                 </p>
-                <ToneSelect value={tone} onChange={setTone} />
+                <ToneSelect value={tone} onChange={(tones) => setTone(tones)} />
               </div>
               <Button
                 onClick={handleSubmit}

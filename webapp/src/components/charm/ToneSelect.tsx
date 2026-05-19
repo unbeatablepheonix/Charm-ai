@@ -6,11 +6,15 @@ const TONES: { id: CoachTone; label: string }[] = [
   { id: "playful", label: "Playful" },
   { id: "witty", label: "Witty" },
   { id: "confident", label: "Confident" },
+  { id: "sweet", label: "Sweet" },
+  { id: "chill", label: "Chill" },
+  { id: "super_swagger_rizz", label: "Super Swagger Rizz" },
+  { id: "charm", label: "Charm" },
 ];
 
 interface Props {
-  value: CoachTone | undefined;
-  onChange: (tone: CoachTone | undefined) => void;
+  value: CoachTone[];
+  onChange: (tones: CoachTone[]) => void;
 }
 
 export function ToneSelect({ value, onChange }: Props) {
@@ -20,12 +24,12 @@ export function ToneSelect({ value, onChange }: Props) {
         Tone
       </span>
       {TONES.map((t) => {
-        const active = value === t.id;
+        const active = value.includes(t.id);
         return (
           <button
             key={t.id}
             type="button"
-            onClick={() => onChange(active ? undefined : t.id)}
+            onClick={() => onChange(active ? value.filter((v) => v !== t.id) : [...value, t.id])}
             className={cn(
               "rounded-full border px-3 py-1 text-xs transition-colors",
               active
