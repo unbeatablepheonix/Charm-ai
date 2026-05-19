@@ -1,4 +1,3 @@
-import { Crown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { COACH_MODES } from "@/lib/coach-modes";
 import type { CoachMode } from "@/lib/coach-types";
@@ -26,11 +25,6 @@ export function ModeTabs({ value, onChange }: Props) {
                 : "border-border/60 bg-card/40 hover:border-border hover:bg-card/70"
             )}
           >
-            {mode.premium ? (
-              <div className="absolute right-2.5 top-2.5">
-                <Crown className="h-3 w-3 text-amber-400" strokeWidth={1.5} />
-              </div>
-            ) : null}
             <div className="flex items-center gap-2">
               <Icon
                 className={cn(

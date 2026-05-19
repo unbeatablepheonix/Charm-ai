@@ -25,9 +25,11 @@ const Index = () => {
     }
   });
 
-  const [showPaywall, setShowPaywall] = useState<boolean>(false);
   const [isUnlocked, setIsUnlocked] = useState<boolean>(() =>
     localStorage.getItem("charm-unlocked") === "true"
+  );
+  const [showPaywall, setShowPaywall] = useState<boolean>(
+    localStorage.getItem("charm-unlocked") !== "true"
   );
 
   const coach = useCoach();
@@ -52,11 +54,6 @@ const Index = () => {
 
   const handleSubmit = () => {
     if (!context.trim() || coach.isPending) return;
-    const modeConfig = getMode(mode);
-    if (modeConfig.premium && !isUnlocked) {
-      setShowPaywall(true);
-      return;
-    }
     coach.mutate({ mode, context: context.trim(), tone: tone.length > 0 ? tone : undefined, imageUrls: imageUrls.length > 0 ? imageUrls : undefined });
   };
 
@@ -82,10 +79,6 @@ const Index = () => {
   const handleModeChange = (m: CoachMode) => {
     setMode(m);
     coach.reset();
-    const modeConfig = getMode(m);
-    if (modeConfig.premium && !isUnlocked) {
-      setShowPaywall(true);
-    }
   };
 
   const useExample = () => {

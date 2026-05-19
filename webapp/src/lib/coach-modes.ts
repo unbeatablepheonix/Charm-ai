@@ -6,7 +6,6 @@ export interface ModeConfig {
   name: string;
   tagline: string;
   icon: typeof Sparkles;
-  premium?: boolean;
   placeholder: string;
   cta: string;
   example: string;
@@ -73,7 +72,6 @@ export const COACH_MODES: ModeConfig[] = [
     name: "Bio Boost",
     tagline: "Improve your dating bio",
     icon: PenLine,
-    premium: true,
     placeholder: "Paste your current dating bio here. Include any prompts you've answered, what you're looking for, your age — anything on your profile.",
     cta: "Rewrite my bio",
     example: "26M. 'Software engineer by day, amateur chef by night. Love hiking and trying new restaurants. Looking for someone to explore the city with 🙃'",

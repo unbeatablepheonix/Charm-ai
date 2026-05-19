@@ -1,7 +1,7 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Dialog, DialogOverlay, DialogPortal } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Crown, Check, X } from "lucide-react";
+import { Crown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -35,14 +35,7 @@ export function PaywallModal({ open, onClose, onUnlock }: Props) {
         >
           {/* Header gradient strip */}
           <div className="relative overflow-hidden rounded-t-lg bg-gradient-to-br from-primary/20 via-accent/10 to-card px-6 pb-5 pt-6">
-            <button
-              type="button"
-              onClick={onClose}
-              className="absolute right-4 top-4 rounded-full p-1 text-muted-foreground transition-colors hover:text-foreground"
-            >
-              <X className="h-4 w-4" />
-            </button>
-            <div className="flex items-center gap-2.5">
+<div className="flex items-center gap-2.5">
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-400/15 ring-1 ring-amber-400/30">
                 <Crown className="h-[18px] w-[18px] text-amber-400" strokeWidth={1.5} />
               </div>
