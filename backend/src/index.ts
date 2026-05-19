@@ -4,6 +4,7 @@ import { cors } from "hono/cors";
 import "./env";
 import { sampleRouter } from "./routes/sample";
 import { coachRouter } from "./routes/coach";
+import { checkoutRouter } from "./routes/checkout";
 import { logger } from "hono/logger";
 import { createVibecodeSDK, StorageError } from "@vibecodeapp/backend-sdk";
 import { auth } from "./auth";
@@ -61,6 +62,7 @@ app.on(["GET", "POST"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 // Routes
 app.route("/api/sample", sampleRouter);
 app.route("/api/coach", coachRouter);
+app.route("/api/checkout", checkoutRouter);
 
 app.post("/api/upload", async (c) => {
   const formData = await c.req.formData();

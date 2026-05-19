@@ -1,22 +1,42 @@
+import { useState } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Dialog, DialogOverlay, DialogPortal } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Crown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { api } from "@/lib/api";
+import { signOut } from "@/lib/auth-client";
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  onUnlock: () => void;
 }
 
-export function PaywallModal({ open, onClose, onUnlock }: Props) {
+export function PaywallModal({ open, onClose }: Props) {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const features = [
     "Bio Boost — 3 polished rewrites of your dating profile",
     "Unlimited openers, replies & advice",
     "Profile deep-reads with actionable tips",
     "Story replies that actually land",
   ];
+
+  const handleStartTrial = async () => {
+    setIsLoading(true);
+    try {
+      const data = await api.post<{ url: string }>("/api/checkout/create", {
+        successUrl: `${window.location.origin}/app?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: `${window.location.origin}/app`,
+      });
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (err) {
+      console.error("Checkout error:", err);
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
@@ -35,7 +55,7 @@ export function PaywallModal({ open, onClose, onUnlock }: Props) {
         >
           {/* Header gradient strip */}
           <div className="relative overflow-hidden rounded-t-lg bg-gradient-to-br from-primary/20 via-accent/10 to-card px-6 pb-5 pt-6">
-<div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5">
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-400/15 ring-1 ring-amber-400/30">
                 <Crown className="h-[18px] w-[18px] text-amber-400" strokeWidth={1.5} />
               </div>
@@ -65,23 +85,24 @@ export function PaywallModal({ open, onClose, onUnlock }: Props) {
                 3-day free trial
               </p>
               <p className="mt-0.5 text-sm text-muted-foreground">
-                Then <span className="font-semibold text-foreground">$9 / week</span> · Cancel anytime
+                Then <span className="font-semibold text-foreground">$8 / week</span> · Cancel anytime
               </p>
             </div>
 
             {/* CTA */}
             <Button
-              onClick={onUnlock}
-              className="h-12 w-full rounded-full bg-primary text-base font-medium text-primary-foreground hover:bg-primary/90"
+              onClick={() => void handleStartTrial()}
+              disabled={isLoading}
+              className="h-12 w-full rounded-full bg-primary text-base font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
-              Start free trial
+              {isLoading ? "Redirecting…" : "Start free trial"}
             </Button>
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => void signOut().then(() => { window.location.href = "/"; })}
               className="block w-full text-center text-xs text-muted-foreground transition-colors hover:text-foreground"
             >
-              Maybe later
+              Sign out
             </button>
           </div>
         </DialogPrimitive.Content>

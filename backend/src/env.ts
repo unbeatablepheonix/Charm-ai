@@ -11,6 +11,8 @@ const envSchema = z.object({
   DATABASE_URL: z.string().default("file:./dev.db"),
   BETTER_AUTH_SECRET: z.string().min(1, "BETTER_AUTH_SECRET is required"),
   BACKEND_URL: z.string().default("http://localhost:3000"),
+  STRIPE_SECRET_KEY: z.string().default("sk_test_placeholder"),
+  STRIPE_PRICE_ID: z.string().default("price_placeholder"),
 });
 
 /**

@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Wordmark } from "@/components/charm/Wordmark";
@@ -14,10 +16,16 @@ import { SettingsSheet } from "@/components/charm/SettingsSheet";
 import { useCoach } from "@/hooks/use-coach";
 import { useTheme } from "@/hooks/use-theme";
 import { getMode } from "@/lib/coach-modes";
+import { api } from "@/lib/api";
 import type { CoachMode, CoachTone } from "@/lib/coach-types";
 
 const Index = () => {
   useTheme();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+
   const [mode, setMode] = useState<CoachMode>("opener");
   const [context, setContext] = useState<string>(() => localStorage.getItem("charm-context") ?? "");
   const [tone, setTone] = useState<CoachTone[]>([]);
@@ -29,16 +37,29 @@ const Index = () => {
     }
   });
 
-  const [isUnlocked, setIsUnlocked] = useState<boolean>(() =>
-    localStorage.getItem("charm-unlocked") === "true"
-  );
-  const [showPaywall, setShowPaywall] = useState<boolean>(
-    localStorage.getItem("charm-unlocked") !== "true"
-  );
-
-  const { data: session } = useSession();
   const coach = useCoach();
   const currentMode = getMode(mode);
+
+  // Fetch subscription status from backend
+  const { data: subData, isLoading: subLoading } = useQuery({
+    queryKey: ["subscription"],
+    queryFn: () => api.get<{ subscribed: boolean; status: string }>("/api/checkout/status"),
+    enabled: !!session,
+    staleTime: 30_000,
+  });
+
+  const isSubscribed = subData?.subscribed ?? false;
+  const showPaywall = !subLoading && !!session && !isSubscribed;
+
+  // When returning from Stripe with session_id, verify and refetch
+  useEffect(() => {
+    const sessionId = searchParams.get("session_id");
+    if (!sessionId || !session) return;
+    api.post("/api/checkout/verify", { sessionId }).then(() => {
+      queryClient.invalidateQueries({ queryKey: ["subscription"] });
+      navigate("/app", { replace: true });
+    });
+  }, [searchParams, session, queryClient, navigate]);
 
   const handleContextChange = (val: string) => {
     setContext(val);
@@ -60,12 +81,6 @@ const Index = () => {
   const handleSubmit = () => {
     if (!context.trim() || coach.isPending) return;
     coach.mutate({ mode, context: context.trim(), tone: tone.length > 0 ? tone : undefined, imageUrls: imageUrls.length > 0 ? imageUrls : undefined });
-  };
-
-  const handleUnlock = () => {
-    localStorage.setItem("charm-unlocked", "true");
-    setIsUnlocked(true);
-    setShowPaywall(false);
   };
 
   const handleReset = () => {
@@ -117,7 +132,7 @@ const Index = () => {
             <SettingsSheet />
             <button
               type="button"
-              onClick={() => signOut().then(() => { window.location.href = "/"; })}
+              onClick={() => void signOut().then(() => { window.location.href = "/"; })}
               className="text-xs text-muted-foreground transition-colors hover:text-foreground"
             >
               Sign out
@@ -205,7 +220,6 @@ const Index = () => {
               />
             </div>
           ) : null}
-
         </main>
 
         <footer className="mt-20 flex flex-col items-start justify-between gap-3 border-t border-border/40 pt-6 text-xs text-muted-foreground md:flex-row md:items-center">
@@ -216,14 +230,9 @@ const Index = () => {
         </footer>
       </div>
 
-      <PaywallModal
-        open={showPaywall}
-        onClose={() => setShowPaywall(false)}
-        onUnlock={handleUnlock}
-      />
+      <PaywallModal open={showPaywall} onClose={() => {}} />
     </div>
   );
 };
-
 
 export default Index;
