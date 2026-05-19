@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { ArrowRight, Sparkle, Star } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Wordmark } from "@/components/charm/Wordmark";
+import { useSession, signOut } from "@/lib/auth-client";
 import { ModeTabs } from "@/components/charm/ModeTabs";
 import { ToneSelect } from "@/components/charm/ToneSelect";
 import { ContextField } from "@/components/charm/ContextField";
@@ -35,6 +36,7 @@ const Index = () => {
     localStorage.getItem("charm-unlocked") !== "true"
   );
 
+  const { data: session } = useSession();
   const coach = useCoach();
   const currentMode = getMode(mode);
 
@@ -113,51 +115,15 @@ const Index = () => {
               </span>
             </div>
             <SettingsSheet />
+            <button
+              type="button"
+              onClick={() => signOut().then(() => { window.location.href = "/"; })}
+              className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Sign out
+            </button>
           </div>
         </nav>
-
-        <section className="mt-14 flex flex-col items-center text-center md:mt-20">
-          {/* Badge pill */}
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-4 py-1.5">
-            <Sparkle className="h-3.5 w-3.5 text-primary" />
-            <span className="text-sm font-semibold text-primary">AI-powered dating assistant</span>
-          </div>
-
-          {/* Headline */}
-          <h1 className="font-hero max-w-3xl text-5xl font-black leading-[1.05] tracking-tight md:text-7xl lg:text-8xl">
-            <span className="text-foreground">Stop overthinking.</span>
-            <br />
-            <span className="text-primary">Start connecting.</span>
-          </h1>
-
-          {/* Subtitle */}
-          <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
-            Charm uses AI to craft story replies, conversation openers, and profile
-            rewrites that actually sound like you — just a better you.
-          </p>
-
-          {/* CTA row */}
-          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            <Button
-              onClick={() => document.getElementById("charm-form")?.scrollIntoView({ behavior: "smooth" })}
-              className="h-12 rounded-full bg-foreground px-8 text-base font-bold text-background hover:bg-foreground/90"
-            >
-              Get started free
-              <ArrowRight className="ml-1.5 h-4 w-4" />
-            </Button>
-            <span className="text-sm text-muted-foreground">No account needed. No credit card.</span>
-          </div>
-
-          {/* Social proof */}
-          <div className="mt-7 flex items-center gap-2">
-            <div className="flex gap-0.5">
-              {[0, 1, 2, 3, 4].map((i) => (
-                <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
-              ))}
-            </div>
-            <span className="text-sm text-muted-foreground">Loved by 10,000+ singles</span>
-          </div>
-        </section>
 
         <main id="charm-form" className="mt-12 grid gap-10">
           <div className="space-y-5">

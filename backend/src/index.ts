@@ -6,10 +6,16 @@ import { sampleRouter } from "./routes/sample";
 import { coachRouter } from "./routes/coach";
 import { logger } from "hono/logger";
 import { createVibecodeSDK, StorageError } from "@vibecodeapp/backend-sdk";
+import { auth } from "./auth";
 
 const vibecode = createVibecodeSDK();
 
-const app = new Hono();
+const app = new Hono<{
+  Variables: {
+    user: typeof auth.$Infer.Session.user | null;
+    session: typeof auth.$Infer.Session.session | null;
+  };
+}>();
 
 // CORS middleware - validates origin against allowlist
 const allowed = [
@@ -30,11 +36,27 @@ app.use(
   })
 );
 
+// Auth session middleware
+app.use("*", async (c, next) => {
+  const session = await auth.api.getSession({ headers: c.req.raw.headers });
+  if (!session) {
+    c.set("user", null);
+    c.set("session", null);
+  } else {
+    c.set("user", session.user);
+    c.set("session", session.session);
+  }
+  await next();
+});
+
 // Logging
 app.use("*", logger());
 
 // Health check endpoint
 app.get("/health", (c) => c.json({ status: "ok" }));
+
+// Auth routes
+app.on(["GET", "POST"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
 // Routes
 app.route("/api/sample", sampleRouter);
