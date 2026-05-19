@@ -1,3 +1,4 @@
+import { Crown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { COACH_MODES } from "@/lib/coach-modes";
 import type { CoachMode } from "@/lib/coach-types";
@@ -9,7 +10,7 @@ interface Props {
 
 export function ModeTabs({ value, onChange }: Props) {
   return (
-    <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+    <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
       {COACH_MODES.map((mode) => {
         const Icon = mode.icon;
         const active = value === mode.id;
@@ -25,6 +26,11 @@ export function ModeTabs({ value, onChange }: Props) {
                 : "border-border/60 bg-card/40 hover:border-border hover:bg-card/70"
             )}
           >
+            {mode.premium ? (
+              <div className="absolute right-2.5 top-2.5">
+                <Crown className="h-3 w-3 text-amber-400" strokeWidth={1.5} />
+              </div>
+            ) : null}
             <div className="flex items-center gap-2">
               <Icon
                 className={cn(

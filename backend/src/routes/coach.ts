@@ -24,6 +24,10 @@ const MODE_BRIEF: Record<CoachMode, { headline: string; instructions: string }> 
     headline: "Story Replies",
     instructions: `The user wants to reply to a woman's Instagram story. They'll describe the story or paste its content. Write three witty, charming DM replies they could send. Each should feel natural and show personality — not creepy, not try-hard. Vary the vibe: one playful/funny, one genuinely curious or warm, one confident and brief. Keep them short — 1-2 sentences max, written like a real DM.`,
   },
+  bio: {
+    headline: "Bio Rewrite",
+    instructions: `The user wants to improve their dating profile bio. Read what they've shared and produce three polished rewrites. Each should sound like a real, interesting person — not a resume bullet list. Use specific details from what they wrote. Vary the style: one warm and genuine, one playful and witty, one confident and direct. Keep each bio concise (3-6 sentences max). The "label" field should name the style (e.g., "Warm & Genuine"), "text" is the rewritten bio, "why" explains what makes this version work. For the "read" field, name one or two things about their current bio that you noticed — the raw material you're working with.`,
+  },
 };
 
 function buildSystemPrompt(mode: CoachMode, tone?: string[], imageCount?: number) {

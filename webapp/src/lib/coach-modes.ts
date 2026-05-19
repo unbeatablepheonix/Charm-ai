@@ -1,11 +1,12 @@
 import type { CoachMode } from "./coach-types";
-import { Sparkles, MessageCircle, ScrollText, Compass, Camera } from "lucide-react";
+import { Sparkles, MessageCircle, ScrollText, Compass, Camera, PenLine } from "lucide-react";
 
 export interface ModeConfig {
   id: CoachMode;
   name: string;
   tagline: string;
   icon: typeof Sparkles;
+  premium?: boolean;
   placeholder: string;
   cta: string;
   example: string;
@@ -66,6 +67,16 @@ export const COACH_MODES: ModeConfig[] = [
     cta: "Get advice",
     example:
       "First date with her on Saturday. We've been texting for a week and it's been great but I'm worried I'll get in my head and run out of things to say. How do I stay present?",
+  },
+  {
+    id: "bio",
+    name: "Bio Boost",
+    tagline: "Improve your dating bio",
+    icon: PenLine,
+    premium: true,
+    placeholder: "Paste your current dating bio here. Include any prompts you've answered, what you're looking for, your age — anything on your profile.",
+    cta: "Rewrite my bio",
+    example: "26M. 'Software engineer by day, amateur chef by night. Love hiking and trying new restaurants. Looking for someone to explore the city with 🙃'",
   },
 ];
 

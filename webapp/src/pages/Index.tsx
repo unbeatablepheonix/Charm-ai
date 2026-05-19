@@ -8,6 +8,7 @@ import { ContextField } from "@/components/charm/ContextField";
 import { PhotoUpload } from "@/components/charm/PhotoUpload";
 import { ResultPanel } from "@/components/charm/ResultPanel";
 import { LoadingShimmer } from "@/components/charm/LoadingShimmer";
+import { PaywallModal } from "@/components/charm/PaywallModal";
 import { useCoach } from "@/hooks/use-coach";
 import { COACH_MODES, getMode } from "@/lib/coach-modes";
 import type { CoachMode, CoachTone } from "@/lib/coach-types";
@@ -23,6 +24,11 @@ const Index = () => {
       return [];
     }
   });
+
+  const [showPaywall, setShowPaywall] = useState<boolean>(false);
+  const [isUnlocked, setIsUnlocked] = useState<boolean>(() =>
+    localStorage.getItem("charm-unlocked") === "true"
+  );
 
   const coach = useCoach();
   const currentMode = getMode(mode);
@@ -46,7 +52,18 @@ const Index = () => {
 
   const handleSubmit = () => {
     if (!context.trim() || coach.isPending) return;
+    const modeConfig = getMode(mode);
+    if (modeConfig.premium && !isUnlocked) {
+      setShowPaywall(true);
+      return;
+    }
     coach.mutate({ mode, context: context.trim(), tone: tone.length > 0 ? tone : undefined, imageUrls: imageUrls.length > 0 ? imageUrls : undefined });
+  };
+
+  const handleUnlock = () => {
+    localStorage.setItem("charm-unlocked", "true");
+    setIsUnlocked(true);
+    setShowPaywall(false);
   };
 
   const handleReset = () => {
@@ -65,6 +82,10 @@ const Index = () => {
   const handleModeChange = (m: CoachMode) => {
     setMode(m);
     coach.reset();
+    const modeConfig = getMode(m);
+    if (modeConfig.premium && !isUnlocked) {
+      setShowPaywall(true);
+    }
   };
 
   const useExample = () => {
@@ -208,6 +229,12 @@ const Index = () => {
           <p className="font-mono uppercase tracking-[0.2em]">made with care</p>
         </footer>
       </div>
+
+      <PaywallModal
+        open={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        onUnlock={handleUnlock}
+      />
     </div>
   );
 };

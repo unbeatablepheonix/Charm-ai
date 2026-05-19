@@ -1,4 +1,4 @@
-export type CoachMode = "opener" | "reply" | "story_reply" | "profile" | "advice";
+export type CoachMode = "opener" | "reply" | "story_reply" | "profile" | "advice" | "bio";
 export type CoachTone = "playful" | "sincere" | "witty" | "confident" | "sweet" | "chill" | "super_swagger_rizz" | "charm";
 
 export interface CoachSuggestion {

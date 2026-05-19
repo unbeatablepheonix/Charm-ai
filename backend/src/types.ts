@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const coachModeSchema = z.enum(["opener", "reply", "profile", "advice", "story_reply"]);
+export const coachModeSchema = z.enum(["opener", "reply", "profile", "advice", "story_reply", "bio"]);
 export type CoachMode = z.infer<typeof coachModeSchema>;
 
 export const toneSchema = z.enum(["playful", "sincere", "witty", "confident", "sweet", "chill", "super_swagger_rizz", "charm"]);
