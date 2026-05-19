@@ -97,7 +97,7 @@ export function PaywallModal({ open, onClose }: Props) {
                 )}
               >
                 <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Weekly</span>
-                <span className="mt-1 text-lg font-bold leading-none text-foreground">$8</span>
+                <span className="mt-1 text-lg font-bold leading-none text-foreground">$7.99</span>
                 <span className="text-xs text-muted-foreground">per week</span>
                 <span className="mt-2 text-[10px] text-primary">3-day free trial</span>
               </button>
