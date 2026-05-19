@@ -9,11 +9,14 @@ import { PhotoUpload } from "@/components/charm/PhotoUpload";
 import { ResultPanel } from "@/components/charm/ResultPanel";
 import { LoadingShimmer } from "@/components/charm/LoadingShimmer";
 import { PaywallModal } from "@/components/charm/PaywallModal";
+import { SettingsSheet } from "@/components/charm/SettingsSheet";
 import { useCoach } from "@/hooks/use-coach";
+import { useTheme } from "@/hooks/use-theme";
 import { COACH_MODES, getMode } from "@/lib/coach-modes";
 import type { CoachMode, CoachTone } from "@/lib/coach-types";
 
 const Index = () => {
+  useTheme();
   const [mode, setMode] = useState<CoachMode>("opener");
   const [context, setContext] = useState<string>(() => localStorage.getItem("charm-context") ?? "");
   const [tone, setTone] = useState<CoachTone[]>([]);
@@ -99,14 +102,17 @@ const Index = () => {
       <div className="relative z-10 mx-auto flex max-w-5xl flex-col px-5 pb-24 pt-7 md:px-8 md:pt-10">
         <nav className="flex items-center justify-between">
           <Wordmark />
-          <div className="hidden items-center gap-2 rounded-full border border-border/60 bg-card/40 px-3 py-1.5 sm:flex">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
-            </span>
-            <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-              powered by gpt-5.2
-            </span>
+          <div className="flex items-center gap-2">
+            <div className="hidden items-center gap-2 rounded-full border border-border/60 bg-card/40 px-3 py-1.5 sm:flex">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
+              </span>
+              <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                powered by gpt-5.2
+              </span>
+            </div>
+            <SettingsSheet />
           </div>
         </nav>
 
