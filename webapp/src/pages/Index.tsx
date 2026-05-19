@@ -12,7 +12,7 @@ import { PaywallModal } from "@/components/charm/PaywallModal";
 import { SettingsSheet } from "@/components/charm/SettingsSheet";
 import { useCoach } from "@/hooks/use-coach";
 import { useTheme } from "@/hooks/use-theme";
-import { COACH_MODES, getMode } from "@/lib/coach-modes";
+import { getMode } from "@/lib/coach-modes";
 import type { CoachMode, CoachTone } from "@/lib/coach-types";
 
 const Index = () => {
@@ -240,9 +240,6 @@ const Index = () => {
             </div>
           ) : null}
 
-          {!coach.data && !coach.isPending && !coach.isError ? (
-            <EmptyHint mode={mode} />
-          ) : null}
         </main>
 
         <footer className="mt-20 flex flex-col items-start justify-between gap-3 border-t border-border/40 pt-6 text-xs text-muted-foreground md:flex-row md:items-center">
@@ -262,25 +259,5 @@ const Index = () => {
   );
 };
 
-function EmptyHint({ mode }: { mode: CoachMode }) {
-  return (
-    <div className="grid gap-4 rounded-2xl border border-dashed border-border/60 bg-card/20 p-6 md:grid-cols-3">
-      {COACH_MODES.filter((m) => m.id !== mode)
-        .slice(0, 3)
-        .map((m) => {
-          const Icon = m.icon;
-          return (
-            <div key={m.id} className="space-y-1.5">
-              <div className="flex items-center gap-2">
-                <Icon className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
-                <p className="text-xs font-medium text-foreground/90">{m.name}</p>
-              </div>
-              <p className="text-xs leading-relaxed text-muted-foreground">{m.tagline}</p>
-            </div>
-          );
-        })}
-    </div>
-  );
-}
 
 export default Index;
