@@ -34,18 +34,20 @@ checkoutRouter.post("/create", async (c) => {
   const body = await c.req.json().catch(() => ({}));
   const successUrl = body.successUrl as string;
   const cancelUrl = body.cancelUrl as string;
+  const plan = (body.plan as string) === "annual" ? "annual" : "weekly";
 
   if (!successUrl || !cancelUrl) {
     return c.json({ error: { message: "successUrl and cancelUrl are required", code: "bad_request" } }, 400);
   }
 
   const stripe = getStripe();
+  const priceId = plan === "annual" ? env.STRIPE_ANNUAL_PRICE_ID : env.STRIPE_PRICE_ID;
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     mode: "subscription",
-    line_items: [{ price: env.STRIPE_PRICE_ID, quantity: 1 }],
-    subscription_data: { trial_period_days: 3 },
+    line_items: [{ price: priceId, quantity: 1 }],
+    ...(plan === "weekly" ? { subscription_data: { trial_period_days: 3 } } : {}),
     customer_email: user.email,
     success_url: successUrl,
     cancel_url: cancelUrl,

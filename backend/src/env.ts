@@ -13,6 +13,7 @@ const envSchema = z.object({
   BACKEND_URL: z.string().default("http://localhost:3000"),
   STRIPE_SECRET_KEY: z.string().default("sk_test_placeholder"),
   STRIPE_PRICE_ID: z.string().default("price_placeholder"),
+  STRIPE_ANNUAL_PRICE_ID: z.string().default("price_annual_placeholder"),
 });
 
 /**

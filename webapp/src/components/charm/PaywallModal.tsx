@@ -7,12 +7,15 @@ import { cn } from "@/lib/utils";
 import { api } from "@/lib/api";
 import { signOut } from "@/lib/auth-client";
 
+type Plan = "weekly" | "annual";
+
 interface Props {
   open: boolean;
   onClose: () => void;
 }
 
 export function PaywallModal({ open, onClose }: Props) {
+  const [selectedPlan, setSelectedPlan] = useState<Plan>("annual");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const features = [
@@ -26,6 +29,7 @@ export function PaywallModal({ open, onClose }: Props) {
     setIsLoading(true);
     try {
       const data = await api.post<{ url: string }>("/api/checkout/create", {
+        plan: selectedPlan,
         successUrl: `${window.location.origin}/app?session_id={CHECKOUT_SESSION_ID}`,
         cancelUrl: `${window.location.origin}/app`,
       });
@@ -53,7 +57,7 @@ export function PaywallModal({ open, onClose }: Props) {
             "rounded-lg sm:max-w-md"
           )}
         >
-          {/* Header gradient strip */}
+          {/* Header */}
           <div className="relative overflow-hidden rounded-t-lg bg-gradient-to-br from-primary/20 via-accent/10 to-card px-6 pb-5 pt-6">
             <div className="flex items-center gap-2.5">
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-400/15 ring-1 ring-amber-400/30">
@@ -66,9 +70,9 @@ export function PaywallModal({ open, onClose }: Props) {
             </div>
           </div>
 
-          <div className="space-y-5 px-6 pb-6 pt-4">
-            {/* Features list */}
-            <ul className="space-y-2.5">
+          <div className="space-y-4 px-6 pb-6 pt-4">
+            {/* Features */}
+            <ul className="space-y-2">
               {features.map((f) => (
                 <li key={f} className="flex items-start gap-2.5">
                   <div className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-primary/15">
@@ -79,14 +83,44 @@ export function PaywallModal({ open, onClose }: Props) {
               ))}
             </ul>
 
-            {/* Pricing */}
-            <div className="rounded-xl border border-border/50 bg-background/50 px-4 py-3.5 text-center">
-              <p className="text-2xl font-bold tracking-tight text-foreground">
-                3-day free trial
-              </p>
-              <p className="mt-0.5 text-sm text-muted-foreground">
-                Then <span className="font-semibold text-foreground">$8 / week</span> · Cancel anytime
-              </p>
+            {/* Plan selector */}
+            <div className="grid grid-cols-2 gap-2.5">
+              {/* Weekly */}
+              <button
+                type="button"
+                onClick={() => setSelectedPlan("weekly")}
+                className={cn(
+                  "relative flex flex-col items-start rounded-xl border p-3.5 text-left transition-all",
+                  selectedPlan === "weekly"
+                    ? "border-primary/50 bg-primary/[0.06] shadow-[0_0_0_1px_hsl(var(--primary)/0.15)]"
+                    : "border-border/60 bg-background/50 hover:border-border"
+                )}
+              >
+                <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Weekly</span>
+                <span className="mt-1 text-lg font-bold leading-none text-foreground">$8</span>
+                <span className="text-xs text-muted-foreground">per week</span>
+                <span className="mt-2 text-[10px] text-primary">3-day free trial</span>
+              </button>
+
+              {/* Annual */}
+              <button
+                type="button"
+                onClick={() => setSelectedPlan("annual")}
+                className={cn(
+                  "relative flex flex-col items-start rounded-xl border p-3.5 text-left transition-all",
+                  selectedPlan === "annual"
+                    ? "border-primary/50 bg-primary/[0.06] shadow-[0_0_0_1px_hsl(var(--primary)/0.15)]"
+                    : "border-border/60 bg-background/50 hover:border-border"
+                )}
+              >
+                <div className="flex w-full items-center justify-between">
+                  <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Annual</span>
+                  <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-primary">Save 88%</span>
+                </div>
+                <span className="mt-1 text-lg font-bold leading-none text-foreground">$47.99</span>
+                <span className="text-xs text-muted-foreground">per year</span>
+                <span className="mt-2 text-[10px] text-muted-foreground">~$4 / month</span>
+              </button>
             </div>
 
             {/* CTA */}
@@ -95,7 +129,7 @@ export function PaywallModal({ open, onClose }: Props) {
               disabled={isLoading}
               className="h-12 w-full rounded-full bg-primary text-base font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
-              {isLoading ? "Redirecting…" : "Start free trial"}
+              {isLoading ? "Redirecting…" : selectedPlan === "weekly" ? "Start free trial" : "Get annual plan"}
             </Button>
             <button
               type="button"
