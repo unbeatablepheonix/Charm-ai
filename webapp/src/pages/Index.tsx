@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowRight, Sparkle } from "lucide-react";
+import { ArrowRight, Sparkle, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Wordmark } from "@/components/charm/Wordmark";
 import { ModeTabs } from "@/components/charm/ModeTabs";
@@ -116,26 +116,50 @@ const Index = () => {
           </div>
         </nav>
 
-        <section className="mt-14 max-w-3xl md:mt-20">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-border/50 bg-card/40 px-3 py-1">
-            <Sparkle className="h-3 w-3 text-primary" />
-            <span className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-              An AI wingman with taste
-            </span>
+        <section className="mt-14 flex flex-col items-center text-center md:mt-20">
+          {/* Badge pill */}
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-4 py-1.5">
+            <Sparkle className="h-3.5 w-3.5 text-primary" />
+            <span className="text-sm font-semibold text-primary">AI-powered dating assistant</span>
           </div>
-          <h1 className="font-display text-5xl leading-[1.05] tracking-tight text-foreground text-balance md:text-7xl">
-            Say the thing.
+
+          {/* Headline */}
+          <h1 className="font-hero max-w-3xl text-5xl font-black leading-[1.05] tracking-tight md:text-7xl lg:text-8xl">
+            <span className="text-foreground">Stop overthinking.</span>
             <br />
-            <span className="italic text-primary/90">Just&nbsp;better.</span>
+            <span className="text-primary">Start connecting.</span>
           </h1>
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
-            Charm reads the situation and gives you three honest, specific things you could
-            actually say. No pickup lines. No tricks. Just better words for the moment you're
-            in.
+
+          {/* Subtitle */}
+          <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
+            Charm uses AI to craft story replies, conversation openers, and profile
+            rewrites that actually sound like you — just a better you.
           </p>
+
+          {/* CTA row */}
+          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <Button
+              onClick={() => document.getElementById("charm-form")?.scrollIntoView({ behavior: "smooth" })}
+              className="h-12 rounded-full bg-foreground px-8 text-base font-bold text-background hover:bg-foreground/90"
+            >
+              Get started free
+              <ArrowRight className="ml-1.5 h-4 w-4" />
+            </Button>
+            <span className="text-sm text-muted-foreground">No account needed. No credit card.</span>
+          </div>
+
+          {/* Social proof */}
+          <div className="mt-7 flex items-center gap-2">
+            <div className="flex gap-0.5">
+              {[0, 1, 2, 3, 4].map((i) => (
+                <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+              ))}
+            </div>
+            <span className="text-sm text-muted-foreground">Loved by 10,000+ singles</span>
+          </div>
         </section>
 
-        <main className="mt-12 grid gap-10">
+        <main id="charm-form" className="mt-12 grid gap-10">
           <div className="space-y-5">
             <div>
               <p className="mb-2.5 font-mono text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
