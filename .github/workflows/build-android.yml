@@ -8,13 +8,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -24,6 +26,12 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android licenses
+        run: yes | sdkmanager --licenses || true
 
       - name: Install webapp dependencies
         working-directory: webapp
@@ -37,8 +45,8 @@ jobs:
         working-directory: webapp
         run: npx cap sync android
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Set local.properties
+        run: echo "sdk.dir=$ANDROID_SDK_ROOT" > webapp/android/local.properties
 
       - name: Make Gradle executable
         working-directory: webapp/android
@@ -46,7 +54,7 @@ jobs:
 
       - name: Build debug APK
         working-directory: webapp/android
-        run: ./gradlew assembleDebug --no-daemon
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
